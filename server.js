@@ -12,23 +12,14 @@ const PORT = process.env.PORT || 3001;
 
 const notes = express();
 
-//app.use(clog);
-
 notes.use(express.json());
 notes.use(express.urlencoded({ extended: true }));
 //app.use('/api', api);
 
-// const Nanoid = require('nanoid');
-// const NanoidAsync = require('nanoid/async');
+const crypto = require('crypto');
 
-// console.log(`UUID with Nano ID sync: ${Nanoid.nanoid()}`);
+console.log(crypto.randomUUID());
 
-// (async function() {
-//   const nanoId = await NanoidAsync.nanoid();
-//   console.log(`UUID with Nano ID async: ${nanoId}`);
-// })();
-
-// node uuid-nanoid.js;
 
 notes.use(express.static('public'));
 
@@ -53,10 +44,10 @@ notes.get('/api/notes', (req, res) =>
 notes.post('/api/notes', (req, res) => {
   console.log(req.body);
 
-  const { title, item } = req.body;
-
   if (req.body) {
-    readAndAppend(req.body, './db/notes.json');
+    const newItem = { ...req.body};
+    newItem.id = crypto.randomUUID();
+    readAndAppend(newItem, './db/notes.json');
 
    res.json(`Note added successfully`);
   } else {
