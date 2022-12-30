@@ -1,12 +1,7 @@
-const express = require('express');
-const path = require('path');
-// const { clog } = require('./middleware/clog');
-// const fs = require('fs');
-const {
-  readFromFile,
-  readAndAppend,
-  writeToFile,
-} = require('./fsUtils');
+const express = require("express");
+const path = require("path");
+
+const { readFromFile, readAndAppend, writeToFile } = require("./fsUtils");
 
 const PORT = process.env.PORT || 3001;
 
@@ -14,57 +9,46 @@ const notes = express();
 
 notes.use(express.json());
 notes.use(express.urlencoded({ extended: true }));
-//app.use('/api', api);
 
-const crypto = require('crypto');
-
+const crypto = require("crypto");
 console.log(crypto.randomUUID());
 
+notes.use(express.static("public"));
 
-notes.use(express.static('public'));
-
-// retrieve all notes
-// notes.get('/', (req, res) =>
-//   readFromFile('./db/notes.json').then((data) => res.json(JSON.parse(data)))
-// );
-
-
-notes.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/index.html'))
+notes.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "/public/index.html"))
 );
 
-notes.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
+notes.get("/notes", (req, res) =>
+  res.sendFile(path.join(__dirname, "/public/notes.html"))
 );
 
-notes.get('/api/notes', (req, res) =>
-  readFromFile('./db/notes.json').then((data) => res.json(JSON.parse(data)))
+notes.get("/api/notes", (req, res) =>
+  readFromFile("./db/notes.json").then((data) => res.json(JSON.parse(data)))
 );
 
-notes.post('/api/notes', (req, res) => {
+notes.post("/api/notes", (req, res) => {
   console.log(req.body);
 
   if (req.body) {
-    const newItem = { ...req.body};
+    const newItem = { ...req.body };
     newItem.id = crypto.randomUUID();
-    readAndAppend(newItem, './db/notes.json');
+    readAndAppend(newItem, "./db/notes.json");
 
-   res.json(`Note added successfully`);
+    res.json(`Note added successfully`);
   } else {
-    res.error('Error in adding note');
+    res.error("Error in adding note");
   }
 });
 
-notes.delete('/api/notes/:notes_id', (req, res) => {
+notes.delete("/api/notes/:notes_id", (req, res) => {
   const notesId = req.params.notes_id;
-  readFromFile('./db/notes.json')
+  readFromFile("./db/notes.json")
     .then((data) => JSON.parse(data))
     .then((json) => {
-      // Make a new array of all tips except the one with the ID provided in the URL
       const result = json.filter((note) => note.id !== notesId);
-      writeToFile('./db/notes.json', result);
+      writeToFile("./db/notes.json", result);
 
-      // Respond to the DELETE request
       res.json(`Item ${notesId} has been deleted 🗑️`);
     });
 });
@@ -72,5 +56,3 @@ notes.delete('/api/notes/:notes_id', (req, res) => {
 notes.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT}`)
 );
-
-//module.exports = notes;
