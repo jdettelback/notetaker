@@ -55,21 +55,19 @@ notes.post('/api/notes', (req, res) => {
   }
 });
 
-// notes.delete('/api/notes', (req, res) => {
-//   const notesId = req.params.notes_id;
-//   readFromFile('./db/notes.json')
-//     .then((data) => JSON.parse(data))
-//     .then((json) => {
-//       // Make a new array of all tips except the one with the ID provided in the URL
-//       const result = json.filter((tip) => tip.tip_id !== tipId);
+notes.delete('/api/notes/:notes_id', (req, res) => {
+  const notesId = req.params.notes_id;
+  readFromFile('./db/notes.json')
+    .then((data) => JSON.parse(data))
+    .then((json) => {
+      // Make a new array of all tips except the one with the ID provided in the URL
+      const result = json.filter((note) => note.id !== notesId);
+      writeToFile('./db/notes.json', result);
 
-//       // Save that array to the filesystem
-//       writeToFile('./db/tips.json', result);
-
-//       // Respond to the DELETE request
-//       res.json(`Item ${tipId} has been deleted 🗑️`);
-//     });
-// });
+      // Respond to the DELETE request
+      res.json(`Item ${notesId} has been deleted 🗑️`);
+    });
+});
 
 notes.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT}`)
